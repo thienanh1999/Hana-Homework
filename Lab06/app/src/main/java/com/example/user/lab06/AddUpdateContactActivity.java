@@ -1,6 +1,7 @@
 package com.example.user.lab06;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,6 +16,9 @@ public class AddUpdateContactActivity extends BaseActivity {
     Button btOK;
     EditText etName;
 
+    Friend friend;
+    int index;
+
     @Override
     protected int getLayoutId() {
         return R.layout.activity_add_update_contact;
@@ -25,12 +29,34 @@ public class AddUpdateContactActivity extends BaseActivity {
         etName = findViewById(R.id.et_name);
         btOK = findViewById(R.id.bt_save_update);
 
+        final boolean isNew = getIntent().getExtras().getBoolean("new");
+
+        if (!isNew)
+        {
+            friend = (Friend)getIntent().getExtras().getSerializable("current_friend");
+            etName.setText(friend.getName());
+            index = getIntent().getExtras().getInt("index");
+        }
+
         btOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String name = etName.getText().toString();
-                Friend friend = new Friend(name);
-                Log.d(TAG, "onClick: " + name);
+
+                Intent data = new Intent();
+                if (isNew)
+                {
+                    friend = new Friend(name);
+                }
+                else
+                {
+                    friend.setName(etName.getText().toString());
+                    data.putExtra("index", index);
+                }
+                data.putExtra("friend", friend);
+                data.putExtra("new", isNew);
+                setResult(Activity.RESULT_OK, data);
+                finish();
             }
         });
     }

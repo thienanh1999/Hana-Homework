@@ -5,4 +5,5 @@
     <color name="colorAccent">#FF4081</color>
     <color name="grayTitle">#e2e2e2</color>
     <color name="black">#000000</color>
+    <color name="grayButton">#f4f4f4</color>
 </resources>

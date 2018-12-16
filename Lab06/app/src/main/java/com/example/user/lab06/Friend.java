@@ -1,6 +1,8 @@
 package com.example.user.lab06;
 
-public class Friend {
+import java.io.Serializable;
+
+public class Friend implements Serializable {
     private String name;
 
     public Friend(String name) {
