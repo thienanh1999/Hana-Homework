@@ -1,14 +1,16 @@
 package com.example.user.lab06;
 
-public class Message {
+import java.io.Serializable;
+
+public class Message implements Serializable{
     private String from;
     private String content;
-    private boolean opened;
+    private boolean sms;
 
-    public Message(String from, String content, boolean opened) {
+    public Message(String from, String content, boolean sms) {
         this.from = from;
         this.content = content;
-        this.opened = opened;
+        this.sms = sms;
     }
 
     public String getFrom() {
@@ -28,10 +30,10 @@ public class Message {
     }
 
     public boolean isOpened() {
-        return opened;
+        return sms;
     }
 
     public void setOpened(boolean opened) {
-        this.opened = opened;
+        this.sms = opened;
     }
 }

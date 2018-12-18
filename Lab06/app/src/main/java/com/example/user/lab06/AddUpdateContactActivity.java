@@ -31,9 +31,8 @@ public class AddUpdateContactActivity extends BaseActivity {
 
         final boolean isNew = getIntent().getExtras().getBoolean("new");
 
-        if (!isNew)
-        {
-            friend = (Friend)getIntent().getExtras().getSerializable("current_friend");
+        if (!isNew) {
+            friend = (Friend) getIntent().getExtras().getSerializable("current_friend");
             etName.setText(friend.getName());
             index = getIntent().getExtras().getInt("index");
         }
@@ -44,12 +43,9 @@ public class AddUpdateContactActivity extends BaseActivity {
                 String name = etName.getText().toString();
 
                 Intent data = new Intent();
-                if (isNew)
-                {
+                if (isNew) {
                     friend = new Friend(name);
-                }
-                else
-                {
+                } else {
                     friend.setName(etName.getText().toString());
                     data.putExtra("index", index);
                 }

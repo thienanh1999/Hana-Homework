@@ -3,9 +3,12 @@ package com.example.user.lab06;
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,16 +19,18 @@ public class MainActivity extends BaseActivity {
     private static final String TAG = "MainActivity";
 
     private static final int ADD_UPDATE_REQUEST = 0;
+    private static final int SEND_MESSAGE_REQUEST = 1;
 
     TextView tvFriends;
     TextView tvMessages;
     ListView lvFriends;
     ListView lvMessages;
     LinearLayout llAdd;
+    ImageView ivIcon;
 
     private boolean friend = true;
 
-    private List<Friend> friends;
+    public static List<Friend> friends;
     private FriendsAdapter friendsAdapter;
     String[] fr = new String[]{
             "Mr.A",
@@ -63,11 +68,13 @@ public class MainActivity extends BaseActivity {
         lvFriends = findViewById(R.id.lv_friends);
         lvMessages = findViewById(R.id.lv_messages);
         llAdd = findViewById(R.id.ll_add);
+        ivIcon = findViewById(R.id.iv_icon);
 
         tvFriends.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!friend) {
+                    ivIcon.setImageResource(R.drawable.ic_person_add_black_24dp);
                     friend = true;
                     lvFriends.setVisibility(View.VISIBLE);
                     lvMessages.setVisibility(View.INVISIBLE);
@@ -79,6 +86,7 @@ public class MainActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 if (friend) {
+                    ivIcon.setImageResource(R.drawable.ic_send_black_24dp);
                     friend = false;
                     lvMessages.setVisibility(View.VISIBLE);
                     lvFriends.setVisibility(View.INVISIBLE);
@@ -105,15 +113,36 @@ public class MainActivity extends BaseActivity {
         llAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, AddUpdateContactActivity.class);
-                intent.putExtra("new", true);
-                startActivityForResult(intent, ADD_UPDATE_REQUEST);
+                if (friend) {
+                    Intent intent = new Intent(MainActivity.this, AddUpdateContactActivity.class);
+                    intent.putExtra("new", true);
+                    startActivityForResult(intent, ADD_UPDATE_REQUEST);
+                } else {
+                    final Intent intent = new Intent(MainActivity.this, SendMessageActivity.class);
+
+                    PopupMenu popupMenu = new PopupMenu(MainActivity.this, llAdd);
+                    popupMenu.getMenuInflater().inflate(R.menu.send_menu, popupMenu.getMenu());
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem menuItem) {
+                            if (menuItem.getItemId() == R.id.sms) {
+                                intent.putExtra("sms", true);
+                                startActivityForResult(intent, SEND_MESSAGE_REQUEST);
+                            } else {
+                                intent.putExtra("sms", false);
+                                startActivityForResult(intent, SEND_MESSAGE_REQUEST);
+                            }
+                            return true;
+                        }
+                    });
+                    popupMenu.show();
+                }
             }
         });
 
         friendsAdapter.setItemContactHandler(new ItemContactHandler() {
             @Override
-            public void onEditClick(View view, Friend friend,int id) {
+            public void onEditClick(View view, Friend friend, int id) {
                 Intent intent = new Intent(MainActivity.this, AddUpdateContactActivity.class);
                 intent.putExtra("new", false);
                 intent.putExtra("current_friend", friend);
@@ -123,7 +152,10 @@ public class MainActivity extends BaseActivity {
 
             @Override
             public void onSendClick(View view, Friend friend) {
-
+                Intent intent = new Intent(MainActivity.this, SendMessageActivity.class);
+                intent.putExtra("sms", true);
+                intent.putExtra("friend", friend);
+                startActivityForResult(intent, SEND_MESSAGE_REQUEST);
             }
         });
     }
@@ -140,13 +172,16 @@ public class MainActivity extends BaseActivity {
                 Boolean isNew = data.getBooleanExtra("new", true);
                 if (isNew) {
                     friends.add(friend);
-                }
-                else
-                {
-                    int id = data.getIntExtra("index",0);
+                } else {
+                    int id = data.getIntExtra("index", 0);
                     friends.set(id, friend);
                 }
                 friendsAdapter.notifyDataSetChanged();
+                break;
+            case SEND_MESSAGE_REQUEST:
+                Message message = (Message) data.getSerializableExtra("message");
+                messages.add(message);
+                messageAdapter.notifyDataSetChanged();
                 break;
         }
     }
